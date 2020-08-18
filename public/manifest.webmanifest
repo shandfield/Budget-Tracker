@@ -4,13 +4,11 @@
     "icons":[
         {
             "src" : "assets/icons/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "icon/png"
+            "sizes": "192x192"
         },
         {
-            "src" : "assets/icons/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "icon/png"
+            "src" : "assets/icons/icon-512x152.png",
+            "sizes": "512x512"
         }
     ],
     "theme_color": "#ffffff",
