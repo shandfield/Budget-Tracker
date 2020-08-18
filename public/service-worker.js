@@ -1,84 +1,54 @@
-const FILES_TO_CACHE = [
-    "/",
-    "/index.html",
-    "/assets/css/styles.css",
-    "/assets/js/index.js",
-    "/assets/js/db.js"
-    ];
-
-const CACHE_NAME = "static-cache-v2";
+var CACHE_NAME = "my-site-cache-v1";
 const DATA_CACHE_NAME = "data-cache-v1";
-//added in the above to give cache and data cache variables
-
-//*added in a install and access to Cache API
-self.addEventListener("install", (evt)=>{
-    evt.waitUntil(
-        caches.open(CACHE_NAME).then(cache=>{
-            console.log("Your files were pre-cached successfully!")
-            return cache.addAll(FILES_TO_CACHE)
-        }) //! need to double check this
-    );
-    self.skipWaiting();
+var urlsToCache = [
+  "/",
+  "/db.js",
+  "/index.js",
+  "/manifest.json",
+  "/styles.css",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png"
+];
+self.addEventListener("install", function(event) {
+  // Perform install steps
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function(cache) {
+      console.log("Opened cache");
+      return cache.addAll(urlsToCache);
+    })
+  );
 });
-
-//*this creates the code for the activation of the cache storage. By using keys, it will return all the subaches in the cache storage. It returns the data via an array of strings
-self.addEventListener("activate", (evt)=>{
-    evt.waitUntil(
-        caches.keys().then(keylist =>{
-            return Promise.all(
-                keylist.map(key =>{
-                    if (key !== CACHE_NAME && key !== DATA_CACHE_NAME){
-                        console.log("Removing old cache data", key);
-                        return caches.delete(key);
-                        //*only returns when the function is done with the cleanup of the old cache data
-                    }
-                })
-            );
-        })
+self.addEventListener("fetch", function(event) {
+  // cache all get requests to /api routes
+  if (event.request.url.includes("/api/")) {
+    event.respondWith(
+      caches.open(DATA_CACHE_NAME).then(cache => {
+        return fetch(event.request)
+          .then(response => {
+            // If the response was good, clone it and store it in the cache.
+            if (response.status === 200) {
+              cache.put(event.request.url, response.clone());
+            }
+            return response;
+          })
+          .catch(err => {
+            // Network request failed, try to get it from the cache.
+            return cache.match(event.request);
+          });
+      }).catch(err => console.log(err))
     );
-       self.clients.claim()
-        //checks that service worker is functioning properly
+    return;
+  }
+  event.respondWith(
+    fetch(event.request).catch(function() {
+      return caches.match(event.request).then(function(response) {
+        if (response) {
+          return response;
+        } else if (event.request.headers.get("accept").includes("text/html")) {
+          // return the cached home page for all requests for html pages
+          return caches.match("/");
+        }
+      });
+    })
+  );
 });
-
-//this is for fetching the data if the request is not in the cache then it will use other origins such as url
-self.addEventListener("fetch", (evt) => {
-    if(evt.request.method !== "GET" ||
-    !evt.request.url.startsWith(self.location.origin)
-    ) {
-        evt.respondWith(fetch(evt.request));
-        return;
-    }
-    //this will GET the request from data from the api routes
-    //! should it be /api/ or /api/transactions?
-    if (evt.request.url.includes ("/api/")){
-        //created not only a network request but also a fallback when offline
-        evt.respondWith(
-            caches.open(DATA_CACHE_NAME).then(cache => {
-                return fetch(evt.request)
-                .then((response) => {
-                    cache.put(evt.request, response.clone());
-                    return response;
-                })//by having a clone on the response object, it stores all the response data, and are still returning the original response.  
-                .catch(() => caches.match(evt.request));
-                })
-            );
-                return;
-    }
-//using cache first for other requests for performance, if not there then make a network request to place response in cache
-    evt.respondWith(
-        caches.match(evt.request).then((cachedResponse)=>{
-            if (cachedResponse) { return (cachedResponse)};
-        //when request is not in the cache, make the network request and cache that response
-                 return caches.open(DATA_CACHE_NAME).then(cache =>{
-                    return fetch (evt.request).then(response => {
-                      return cache.put(evt.request, response.clone()).then(() => {
-                    return response;
-                    });
-                });
-            });
-        })
-    );
-});
-
-
-
