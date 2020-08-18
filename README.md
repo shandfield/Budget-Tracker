@@ -25,5 +25,4 @@ Contribution:${answers.contribution}
 Tests: Currently under costruction! Please check back.
 
 Questions: If you have any questions please reach out to me via my GitHub, https://github.com/shandfield.
-![main](https://user-images.githubusercontent.com/63683598/90298023-cfe59880-de4d-11ea-8655-40cad3ba880d.png)
-![graphs](https://user-images.githubusercontent.com/63683598/90298030-d1af5c00-de4d-11ea-99f9-8d5ee753613b.png)
+
