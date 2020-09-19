@@ -2,7 +2,7 @@
 ![Budget-Tracker Demo](https://i.imgur.com/KZEm4Mu.gif)
 Description: This is a project that allows a User to track their budget. This program gives the User a input field to give a name to the transaction and to enter in the amount. Then there are two buttons that allow the User to select add or subtract from budget. Then bellow is a graph that shows the changes in the budget, along with a list that shows the name, amount and added/subtracted. It is stored in a database via Mongo. This application can be utilized when online and offline, and any information entered in is saved. 
 
-Heroku deploy link: https://dry-castle-35930.herokuapp.com/
+Heroku deploy link: https://shandfield-budget-tracker.herokuapp.com/
 
 Github link: https://github.com/shandfield/Budget-Tracker
 
